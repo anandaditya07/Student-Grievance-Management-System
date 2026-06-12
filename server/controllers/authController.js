@@ -98,17 +98,18 @@ exports.register = async (req, res) => {
  */
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    // Find user by email
+    // Find user by email and role
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
       .eq('email', email.toLowerCase())
+      .eq('role', role)
       .single();
 
     if (error || !user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email, password, or role selection' });
     }
 
     // Compare password

@@ -60,7 +60,7 @@ exports.validateRegistration = (req, res, next) => {
  */
 exports.validateLogin = (req, res, next) => {
   const errors = [];
-  let { email, password } = req.body;
+  let { email, password, role } = req.body;
 
   // Sanitize
   req.body.email = sanitize(email);
@@ -72,6 +72,10 @@ exports.validateLogin = (req, res, next) => {
 
   if (!password) {
     errors.push('Password is required');
+  }
+
+  if (!role || !['student', 'admin'].includes(role)) {
+    errors.push('Please specify a valid role (student or admin)');
   }
 
   if (errors.length > 0) {
