@@ -3,8 +3,8 @@
 const SUPABASE_URL = 'https://your-project.supabase.co';
 const SUPABASE_ANON_KEY = 'your-anon-key-here';
 
-// API Base URL (Express server)
-const API_BASE_URL = 'http://localhost:3000/api';
+// API Base URL (Dynamic for local & deployed environments)
+const API_BASE_URL = window.location.origin + '/api';
 
 // Toast notification helper
 function showToast(message, type = 'info') {
