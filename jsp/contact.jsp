@@ -320,6 +320,14 @@
       String message = null;
       String messageType = "success";
       
+      String returnUrl = request.getParameter("returnUrl");
+      if (returnUrl == null || returnUrl.trim().isEmpty()) {
+        returnUrl = request.getHeader("referer");
+      }
+      if (returnUrl == null || returnUrl.contains("feedback.jsp") || returnUrl.contains("contact.jsp")) {
+        returnUrl = "http://localhost:3000/student/dashboard.html";
+      }
+      
       if ("POST".equalsIgnoreCase(request.getMethod())) {
         String senderName = request.getParameter("name");
         String senderEmail = request.getParameter("email");
@@ -385,7 +393,7 @@
       </div>
       
       <p style="text-align: center; color: var(--text-muted); margin: 2rem 0; font-size: 0.9rem;">We will review your inquiry and get back to you shortly.</p>
-      <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
+      <a href="<%= returnUrl %>" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
     <% } else { %>
 
       <div class="contact-grid">
@@ -443,6 +451,7 @@
 
       <!-- Quick Message Form -->
       <form action="contact.jsp" method="POST" id="contact-form">
+        <input type="hidden" name="returnUrl" value="<%= returnUrl %>">
         <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; color: var(--text-primary);">Send a Message</h3>
         
         <div class="form-grid-inner">
@@ -471,7 +480,7 @@
           Send Message
         </button>
         
-        <a href="http://localhost:3000/student/dashboard.html" class="back-link">Cancel and Return</a>
+        <a href="<%= returnUrl %>" class="back-link">Cancel and Return</a>
       </form>
     <% } %>
   </div>

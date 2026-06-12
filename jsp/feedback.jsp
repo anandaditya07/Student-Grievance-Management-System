@@ -312,6 +312,14 @@
       String message = null;
       String messageType = null;
       
+      String returnUrl = request.getParameter("returnUrl");
+      if (returnUrl == null || returnUrl.trim().isEmpty()) {
+        returnUrl = request.getHeader("referer");
+      }
+      if (returnUrl == null || returnUrl.contains("feedback.jsp") || returnUrl.contains("contact.jsp")) {
+        returnUrl = "http://localhost:3000/student/dashboard.html";
+      }
+      
       if ("POST".equalsIgnoreCase(request.getMethod())) {
         String name = request.getParameter("name");
         String email = request.getParameter("email");
@@ -386,10 +394,11 @@
       </div>
       
       <p style="text-align: center; color: var(--text-muted); margin: 2rem 0; font-size: 0.9rem;">We appreciate your effort in helping us improve the Student Grievance Management System.</p>
-      <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
+      <a href="<%= returnUrl %>" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
     <% } else { %>
 
       <form action="feedback.jsp" method="POST" id="feedback-form">
+        <input type="hidden" name="returnUrl" value="<%= returnUrl %>">
         <div class="form-group">
           <label for="fb-name">Full Name <span class="required">*</span></label>
           <input type="text" class="form-input" id="fb-name" name="name" placeholder="Enter your full name" required>
@@ -440,7 +449,7 @@
           Submit Feedback
         </button>
         
-        <a href="http://localhost:3000/student/dashboard.html" class="back-link">Cancel and Return</a>
+        <a href="<%= returnUrl %>" class="back-link">Cancel and Return</a>
       </form>
     <% } %>
   </div>
