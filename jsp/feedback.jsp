@@ -8,79 +8,262 @@
   <title>Feedback — Grievance System</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="http://localhost:3000/css/style.css">
   <style>
-    /* Inline CSS styles for self-containment and fallback if Node.js server styling is not loaded */
+    /* Modern self-contained design tokens (matching standard style.css) */
     :root {
-      --bg-dark: #0b0f19;
-      --bg-card: rgba(17, 25, 40, 0.75);
-      --border-color: rgba(255, 255, 255, 0.08);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --primary: #7c3aed;
-      --primary-hover: #6d28d9;
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1a2035;
+      --bg-card: rgba(21, 27, 46, 0.85);
+      --bg-input: #1a2035;
+      --accent-primary: #6366f1;
+      --accent-primary-hover: #818cf8;
+      --accent-primary-glow: rgba(99, 102, 241, 0.25);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --accent-gradient-hover: linear-gradient(135deg, #818cf8, #a78bfa);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --status-resolved: #10b981;
+      --status-rejected: #ef4444;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-light: rgba(255, 255, 255, 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
     }
     
-    body {
-      background-color: var(--bg-dark);
-      font-family: 'Inter', sans-serif;
-      color: var(--text-main);
+    *, *::before, *::after {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 2rem 1rem;
-      box-sizing: border-box;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background gradient bubbles */
+    .auth-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .auth-bg::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+    }
+
+    .auth-bg::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
     }
 
     .glass-card {
       background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
       padding: 2.5rem;
       width: 100%;
-      max-width: 550px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      max-width: 520px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+      z-index: 1;
     }
 
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+      width: 56px;
+      height: 56px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .auth-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+    }
+
+    .auth-header p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+      display: block;
+      width: 100%;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      transition: all 0.15s ease;
+      outline: none;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-primary-glow);
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 2.2rem;
+    }
+
+    .form-select option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .required {
+      color: var(--status-rejected);
+    }
+
+    /* Rating Button Styles */
     .rating-group {
       display: flex;
-      gap: 1rem;
-      margin-top: 0.5rem;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+      width: 100%;
     }
 
     .rating-btn {
       flex: 1;
       text-align: center;
-      padding: 0.75rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+      padding: 0.75rem 0.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
       cursor: pointer;
       font-weight: 600;
-      color: var(--text-muted);
-      transition: all 0.3s ease;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      display: block;
     }
 
     .rating-btn:hover {
-      background: rgba(124, 58, 237, 0.1);
-      border-color: var(--primary);
-      color: var(--text-main);
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
     }
 
-    /* Radio button hiding helper */
     .rating-group input[type="radio"] {
       display: none;
     }
 
     .rating-group input[type="radio"]:checked + label {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--accent-gradient);
+      border-color: var(--accent-primary);
       color: #ffffff;
-      box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-gradient-hover);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-full {
+      width: 100%;
     }
 
     .back-link {
@@ -94,24 +277,40 @@
     }
 
     .back-link:hover {
-      color: var(--primary);
+      color: var(--accent-primary);
     }
+
+    /* Toasts inside card */
+    .toast {
+      padding: 0.9rem 1.2rem;
+      border-radius: var(--radius-md);
+      background: rgba(21, 27, 46, 0.95);
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 0.87rem;
+      color: var(--text-primary);
+    }
+    
+    .toast-success { border-left: 3px solid var(--status-resolved); }
+    .toast-error { border-left: 3px solid var(--status-rejected); }
+    .toast-icon { font-size: 1.1rem; flex-shrink: 0; }
   </style>
 </head>
 <body>
-  <!-- Animated Background -->
   <div class="auth-bg"></div>
 
   <div class="glass-card">
-    <div class="auth-header" style="text-align: center; margin-bottom: 2rem;">
-      <div class="auth-logo" style="margin: 0 auto 1rem;">💬</div>
-      <h1 style="font-family: 'Outfit', sans-serif; font-size: 2rem; margin: 0 0 0.5rem;">System Feedback</h1>
-      <p style="color: var(--text-muted); margin: 0;">Let us know your experience with our system</p>
+    <div class="auth-header">
+      <div class="auth-logo">💬</div>
+      <h1>System Feedback</h1>
+      <p>Let us know your experience with our system</p>
     </div>
 
     <%
       String message = null;
-      String messageType = null; // "success" or "error"
+      String messageType = null;
       
       if ("POST".equalsIgnoreCase(request.getMethod())) {
         String name = request.getParameter("name");
@@ -129,18 +328,13 @@
         PreparedStatement pstmt = null;
         
         try {
-          // 1. Register PostgreSQL JDBC Driver
           Class.forName("org.postgresql.Driver");
-          
-          // 2. Open connection to your Supabase PostgreSQL DB
-          // REPLACE 'YOUR_DB_PASSWORD' with your actual database password
           String dbUrl = "jdbc:postgresql://db.wujpvdkfgricmblhfrod.supabase.co:5432/postgres";
           String dbUser = "postgres";
           String dbPassword = "YOUR_DB_PASSWORD"; 
           
           conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
           
-          // 3. Create feedback table if it doesn't exist
           String createTableSQL = "CREATE TABLE IF NOT EXISTS feedback (" +
                                   "id SERIAL PRIMARY KEY," +
                                   "name VARCHAR(100) NOT NULL," +
@@ -154,7 +348,6 @@
           Statement stmt = conn.createStatement();
           stmt.executeUpdate(createTableSQL);
           
-          // 4. Insert feedback into table
           String insertSQL = "INSERT INTO feedback (name, email, category, rating, comments) VALUES (?, ?, ?, ?, ?)";
           pstmt = conn.prepareStatement(insertSQL);
           pstmt.setString(1, name);
@@ -169,7 +362,6 @@
           messageType = "success";
           
         } catch (ClassNotFoundException e) {
-          // If Driver is missing, fallback to success page but log it internally
           message = "Feedback submitted! (Note: PostgreSQL JDBC driver was not found in Tomcat lib, but form data was parsed successfully).";
           messageType = "success";
         } catch (SQLException e) {
@@ -188,13 +380,13 @@
     %>
 
     <% if (message != null) { %>
-      <div class="toast toast-<%= messageType %>" style="position: static; margin-bottom: 1.5rem; width: auto; opacity: 1; transform: none; display: flex;">
+      <div class="toast toast-<%= messageType %>" style="margin-bottom: 1.5rem;">
         <span class="toast-icon"><%= "success".equals(messageType) ? "✅" : "❌" %></span>
         <span><%= message %></span>
       </div>
       
-      <p style="text-align: center; color: var(--text-muted); margin: 2rem 0;">We appreciate your effort in helping us improve the Student Grievance Management System.</p>
-      <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; line-height: 2.2rem; text-decoration: none;">Return to Dashboard</a>
+      <p style="text-align: center; color: var(--text-muted); margin: 2rem 0; font-size: 0.9rem;">We appreciate your effort in helping us improve the Student Grievance Management System.</p>
+      <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
     <% } else { %>
 
       <form action="feedback.jsp" method="POST" id="feedback-form">
@@ -210,12 +402,12 @@
 
         <div class="form-group">
           <label for="fb-category">Feedback Category <span class="required">*</span></label>
-          <select class="form-input" id="fb-category" name="category" required style="background-color: rgba(255, 255, 255, 0.02); color: var(--text-main);">
-            <option value="UI Design" style="background-color: var(--bg-dark);">UI/UX Interface</option>
-            <option value="Speed" style="background-color: var(--bg-dark);">Website Speed & Performance</option>
-            <option value="Support" style="background-color: var(--bg-dark);">Grievance Response Time</option>
-            <option value="Bugs" style="background-color: var(--bg-dark);">Bugs / Errors</option>
-            <option value="Other" style="background-color: var(--bg-dark);">Other</option>
+          <select class="form-select" id="fb-category" name="category" required>
+            <option value="UI Design">UI/UX Interface</option>
+            <option value="Speed">Website Speed & Performance</option>
+            <option value="Support">Grievance Response Time</option>
+            <option value="Bugs">Bugs / Errors</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -223,28 +415,28 @@
           <label>Overall Rating <span class="required">*</span></label>
           <div class="rating-group">
             <input type="radio" name="rating" id="r1" value="1">
-            <label class="rating-btn" for="r1">1⭐</label>
+            <label class="rating-btn" for="r1">1 ⭐</label>
             
             <input type="radio" name="rating" id="r2" value="2">
-            <label class="rating-btn" for="r2">2⭐</label>
+            <label class="rating-btn" for="r2">2 ⭐</label>
             
             <input type="radio" name="rating" id="r3" value="3">
-            <label class="rating-btn" for="r3">3⭐</label>
+            <label class="rating-btn" for="r3">3 ⭐</label>
             
             <input type="radio" name="rating" id="r4" value="4">
-            <label class="rating-btn" for="r4">4⭐</label>
+            <label class="rating-btn" for="r4">4 ⭐</label>
             
             <input type="radio" name="rating" id="r5" value="5" checked>
-            <label class="rating-btn" for="r5">5⭐</label>
+            <label class="rating-btn" for="r5">5 ⭐</label>
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 1.5rem;">
           <label for="fb-comments">Comments / Suggestions</label>
-          <textarea class="form-input" id="fb-comments" name="comments" rows="4" placeholder="Your comments help us improve..."></textarea>
+          <textarea class="form-textarea" id="fb-comments" name="comments" rows="4" placeholder="Your comments help us improve..."></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+        <button type="submit" class="btn btn-primary btn-full">
           Submit Feedback
         </button>
         

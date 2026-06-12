@@ -7,69 +7,162 @@
   <title>Contact Us — Grievance System</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="http://localhost:3000/css/style.css">
   <style>
+    /* Modern self-contained design tokens (matching standard style.css) */
     :root {
-      --bg-dark: #0b0f19;
-      --bg-card: rgba(17, 25, 40, 0.75);
-      --border-color: rgba(255, 255, 255, 0.08);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --primary: #7c3aed;
-      --primary-hover: #6d28d9;
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1a2035;
+      --bg-card: rgba(21, 27, 46, 0.85);
+      --bg-input: #1a2035;
+      --accent-primary: #6366f1;
+      --accent-primary-hover: #818cf8;
+      --accent-primary-glow: rgba(99, 102, 241, 0.25);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+      --accent-gradient-hover: linear-gradient(135deg, #818cf8, #a78bfa);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --status-resolved: #10b981;
+      --status-rejected: #ef4444;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-light: rgba(255, 255, 255, 0.1);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
     }
     
-    body {
-      background-color: var(--bg-dark);
-      font-family: 'Inter', sans-serif;
-      color: var(--text-main);
+    *, *::before, *::after {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 2rem 1rem;
-      box-sizing: border-box;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background gradient bubbles */
+    .auth-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .auth-bg::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      top: -100px;
+      right: -100px;
+    }
+
+    .auth-bg::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
     }
 
     .glass-card {
       background: var(--bg-card);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
       padding: 2.5rem;
       width: 100%;
-      max-width: 650px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      max-width: 620px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+      z-index: 1;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+      width: 56px;
+      height: 56px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .auth-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+    }
+
+    .auth-header p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
     }
 
     .contact-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      margin-bottom: 2rem;
+      gap: 1.2rem;
+      margin-bottom: 1.8rem;
     }
 
     @media (max-width: 580px) {
       .contact-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
       }
     }
 
     .contact-info-block {
       background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.5rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.2rem;
+    }
+
+    .contact-info-block h3 {
+      font-family: 'Outfit', sans-serif;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: var(--accent-primary);
+      font-size: 1.1rem;
     }
 
     .contact-info-item {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
 
     .contact-info-item:last-child {
@@ -77,15 +170,109 @@
     }
 
     .contact-icon {
-      font-size: 1.25rem;
-      background: rgba(124, 58, 237, 0.15);
-      width: 40px;
-      height: 40px;
+      font-size: 1.1rem;
+      background: rgba(99, 102, 241, 0.15);
+      width: 36px;
+      height: 36px;
       display: flex;
       justify-content: center;
       align-items: center;
       border-radius: 50%;
-      color: var(--primary);
+      color: var(--accent-primary);
+      flex-shrink: 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+      display: block;
+      width: 100%;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      transition: all 0.15s ease;
+      outline: none;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-primary-glow);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .form-grid-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 500px) {
+      .form-grid-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .required {
+      color: var(--status-rejected);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-gradient-hover);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-full {
+      width: 100%;
     }
 
     .back-link {
@@ -99,19 +286,34 @@
     }
 
     .back-link:hover {
-      color: var(--primary);
+      color: var(--accent-primary);
     }
+
+    /* Toasts inside card */
+    .toast {
+      padding: 0.9rem 1.2rem;
+      border-radius: var(--radius-md);
+      background: rgba(21, 27, 46, 0.95);
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 0.87rem;
+      color: var(--text-primary);
+    }
+    
+    .toast-success { border-left: 3px solid var(--status-resolved); }
+    .toast-icon { font-size: 1.1rem; flex-shrink: 0; }
   </style>
 </head>
 <body>
-  <!-- Animated Background -->
   <div class="auth-bg"></div>
 
   <div class="glass-card">
-    <div class="auth-header" style="text-align: center; margin-bottom: 2rem;">
-      <div class="auth-logo" style="margin: 0 auto 1rem;">📞</div>
-      <h1 style="font-family: 'Outfit', sans-serif; font-size: 2rem; margin: 0 0 0.5rem;">Contact Support</h1>
-      <p style="color: var(--text-muted); margin: 0;">Get in touch with the grievance committee</p>
+    <div class="auth-header">
+      <div class="auth-logo">📞</div>
+      <h1>Contact Support</h1>
+      <p>Get in touch with the grievance committee</p>
     </div>
 
     <%
@@ -122,97 +324,96 @@
         String subject = request.getParameter("subject");
         String body = request.getParameter("message");
         
-        // Simulating message transmission
         message = "Your message has been sent successfully! We will contact you at " + senderEmail + " shortly.";
       }
     %>
 
     <% if (message != null) { %>
-      <div class="toast toast-success" style="position: static; margin-bottom: 1.5rem; width: auto; opacity: 1; transform: none; display: flex;">
+      <div class="toast toast-success" style="margin-bottom: 1.5rem;">
         <span class="toast-icon">✅</span>
         <span><%= message %></span>
       </div>
       
-      <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; line-height: 2.2rem; text-decoration: none;">Return to Dashboard</a>
+      <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
     <% } else { %>
 
       <div class="contact-grid">
-        <!-- Contact Information Block -->
+        <!-- Committee Details -->
         <div class="contact-info-block">
-          <h3 style="font-family: 'Outfit', sans-serif; margin-top: 0; margin-bottom: 1rem; color: var(--primary);">Committee Details</h3>
+          <h3>Committee Info</h3>
           
           <div class="contact-info-item">
             <div class="contact-icon">📧</div>
             <div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Email Address</div>
-              <div style="font-size: 0.9rem; font-weight: 500;">support@grievance.edu</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Email</div>
+              <div style="font-size: 0.85rem; font-weight: 500;">support@grievance.edu</div>
             </div>
           </div>
 
           <div class="contact-info-item">
             <div class="contact-icon">📞</div>
             <div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Phone Number</div>
-              <div style="font-size: 0.9rem; font-weight: 500;">+1 (555) 019-2834</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Phone</div>
+              <div style="font-size: 0.85rem; font-weight: 500;">+1 (555) 019-2834</div>
             </div>
           </div>
 
           <div class="contact-info-item">
             <div class="contact-icon">📍</div>
             <div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Office Location</div>
-              <div style="font-size: 0.9rem; font-weight: 500;">Block C, Room 104</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Office</div>
+              <div style="font-size: 0.85rem; font-weight: 500;">Block C, Room 104</div>
             </div>
           </div>
         </div>
 
-        <!-- Working Hours Block -->
+        <!-- Office Hours -->
         <div class="contact-info-block">
-          <h3 style="font-family: 'Outfit', sans-serif; margin-top: 0; margin-bottom: 1rem; color: var(--primary);">Office Hours</h3>
+          <h3>Office Hours</h3>
           
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
-            <span style="color: var(--text-muted);">Monday - Friday</span>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.82rem;">
+            <span style="color: var(--text-muted);">Mon - Fri</span>
             <span>09:00 AM - 05:00 PM</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.82rem;">
             <span style="color: var(--text-muted);">Saturday</span>
             <span>09:00 AM - 01:00 PM</span>
           </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
             <span style="color: var(--text-muted);">Sunday</span>
-            <span style="color: var(--primary);">Closed</span>
+            <span style="color: var(--accent-primary); font-weight: 600;">Closed</span>
           </div>
 
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1.5rem; line-height: 1.4;">
-            * Inquiries submitted outside hours will be addressed on the following business day.
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.8rem; line-height: 1.3;">
+            * Inquiry submissions will be handled on the next working day.
           </p>
         </div>
       </div>
 
       <!-- Quick Message Form -->
       <form action="contact.jsp" method="POST" id="contact-form">
-        <h3 style="font-family: 'Outfit', sans-serif; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Send a Quick Message</h3>
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; color: var(--text-primary);">Send a Message</h3>
         
-        <div class="form-grid">
-          <div class="form-group" style="margin-bottom: 1rem;">
+        <div class="form-grid-inner">
+          <div class="form-group">
             <label for="c-name">Your Name <span class="required">*</span></label>
             <input type="text" class="form-input" id="c-name" name="name" placeholder="John Doe" required>
           </div>
 
-          <div class="form-group" style="margin-bottom: 1rem;">
+          <div class="form-group">
             <label for="c-email">Your Email <span class="required">*</span></label>
             <input type="email" class="form-input" id="c-email" name="email" placeholder="john.doe@example.com" required>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: 1rem;">
+        <div class="form-group">
           <label for="c-subject">Subject <span class="required">*</span></label>
           <input type="text" class="form-input" id="c-subject" name="subject" placeholder="Inquiry about grievance status" required>
         </div>
 
         <div class="form-group" style="margin-bottom: 1.5rem;">
           <label for="c-message">Message <span class="required">*</span></label>
-          <textarea class="form-input" id="c-message" name="message" rows="4" placeholder="Type your message here..." required></textarea>
+          <textarea class="form-textarea" id="c-message" name="message" rows="4" placeholder="Type your message here..." required></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary btn-full">
