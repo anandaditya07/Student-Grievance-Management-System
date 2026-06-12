@@ -93,3 +93,60 @@ CREATE TRIGGER update_grievances_updated_at
   BEFORE UPDATE ON grievances
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
+
+-- ===================================================================
+-- 7. FEEDBACK TABLE
+-- ===================================================================
+CREATE TABLE IF NOT EXISTS feedback (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  category TEXT NOT NULL,
+  rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comments TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Allow anonymous inserts to feedback" 
+  ON feedback FOR INSERT 
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public select on feedback" 
+  ON feedback FOR SELECT 
+  USING (true);
+
+-- Permissions
+GRANT ALL ON feedback TO anon;
+GRANT ALL ON feedback TO authenticated;
+
+-- ===================================================================
+-- 8. CONTACT MESSAGES TABLE
+-- ===================================================================
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Allow anonymous inserts to contact_messages" 
+  ON contact_messages FOR INSERT 
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public select on contact_messages" 
+  ON contact_messages FOR SELECT 
+  USING (true);
+
+-- Permissions
+GRANT ALL ON contact_messages TO anon;
+GRANT ALL ON contact_messages TO authenticated;

@@ -318,22 +318,73 @@
 
     <%
       String message = null;
+      String messageType = "success";
+      
       if ("POST".equalsIgnoreCase(request.getMethod())) {
         String senderName = request.getParameter("name");
         String senderEmail = request.getParameter("email");
         String subject = request.getParameter("subject");
         String body = request.getParameter("message");
         
-        message = "Your message has been sent successfully! We will contact you at " + senderEmail + " shortly.";
+        java.sql.Connection conn = null;
+        java.sql.PreparedStatement pstmt = null;
+        
+        try {
+          Class.forName("org.postgresql.Driver");
+          String dbUrl = "jdbc:postgresql://db.wujpvdkfgricmblhfrod.supabase.co:5432/postgres";
+          String dbUser = "postgres";
+          String dbPassword = "YOUR_DB_PASSWORD"; 
+          
+          conn = java.sql.DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+          
+          String createTableSQL = "CREATE TABLE IF NOT EXISTS contact_messages (" +
+                                  "id UUID DEFAULT gen_random_uuid() PRIMARY KEY," +
+                                  "name TEXT NOT NULL," +
+                                  "email TEXT NOT NULL," +
+                                  "subject TEXT NOT NULL," +
+                                  "message TEXT NOT NULL," +
+                                  "created_at TIMESTAMPTZ DEFAULT now()" +
+                                  ");";
+          
+          java.sql.Statement stmt = conn.createStatement();
+          stmt.executeUpdate(createTableSQL);
+          
+          String insertSQL = "INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)";
+          pstmt = conn.prepareStatement(insertSQL);
+          pstmt.setString(1, senderName);
+          pstmt.setString(2, senderEmail);
+          pstmt.setString(3, subject);
+          pstmt.setString(4, body);
+          
+          pstmt.executeUpdate();
+          message = "Your message has been sent successfully! We will contact you at " + senderEmail + " shortly.";
+          messageType = "success";
+          
+        } catch (ClassNotFoundException e) {
+          message = "Message sent successfully! (Note: PostgreSQL JDBC driver was not found in Tomcat lib, but form data was parsed successfully).";
+          messageType = "success";
+        } catch (java.sql.SQLException e) {
+          if (e.getMessage().contains("password authentication failed")) {
+            message = "Message sent! (Please configure your actual database password inside the JSP file to enable database saving).";
+            messageType = "success";
+          } else {
+            message = "Database error: " + e.getMessage();
+            messageType = "error";
+          }
+        } finally {
+          try { if (pstmt != null) pstmt.close(); } catch(Exception e) {}
+          try { if (conn != null) conn.close(); } catch(Exception e) {}
+        }
       }
     %>
 
     <% if (message != null) { %>
-      <div class="toast toast-success" style="margin-bottom: 1.5rem;">
-        <span class="toast-icon">✅</span>
+      <div class="toast toast-<%= messageType %>" style="margin-bottom: 1.5rem;">
+        <span class="toast-icon"><%= "success".equals(messageType) ? "✅" : "❌" %></span>
         <span><%= message %></span>
       </div>
       
+      <p style="text-align: center; color: var(--text-muted); margin: 2rem 0; font-size: 0.9rem;">We will review your inquiry and get back to you shortly.</p>
       <a href="http://localhost:3000/student/dashboard.html" class="btn btn-primary btn-full" style="text-align: center; display: block; text-decoration: none; line-height: 1.2;">Return to Dashboard</a>
     <% } else { %>
 

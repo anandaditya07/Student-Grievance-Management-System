@@ -336,7 +336,7 @@
           conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
           
           String createTableSQL = "CREATE TABLE IF NOT EXISTS feedback (" +
-                                  "id SERIAL PRIMARY KEY," +
+                                  "id UUID DEFAULT gen_random_uuid() PRIMARY KEY," +
                                   "name VARCHAR(100) NOT NULL," +
                                   "email VARCHAR(100) NOT NULL," +
                                   "category VARCHAR(50) NOT NULL," +
