@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Submit a new grievance — describe your concern and we'll address it promptly.">
+  <title>Submit Grievance — Grievance System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Success Modal -->
+  <div class="success-overlay hidden" id="success-overlay">
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h3>Grievance Submitted Successfully</h3>
+      <p>Your grievance has been registered with ticket ID:</p>
+      <div class="success-ticket" id="success-ticket-id">GRV-XXXXXXX</div>
+      <p style="font-size: 0.82rem; color: var(--text-muted);">You can track the status in My Grievances</p>
+      <button class="btn btn-primary" onclick="closeSuccessModal()" style="margin-top: 1rem;">Got it</button>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">G</div>
+          <div class="logo-text">
+            <h1>Griever</h1>
+            <span>Management System</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="submit.html" class="nav-item active" id="nav-submit">
+          <span class="nav-icon">📝</span>
+          <span>Submit Grievance</span>
+        </a>
+        <a href="grievances.html" class="nav-item" id="nav-grievances">
+          <span class="nav-icon">📋</span>
+          <span>My Grievances</span>
+          <span class="nav-badge" id="grievance-count-badge">0</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="user-display-name">User</div>
+            <div class="user-role" id="user-display-role">Student</div>
+          </div>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Submit a Grievance</h2>
+        <p>Describe your concern and we'll address it promptly</p>
+      </div>
+
+      <div class="solid-card">
+        <form id="grievance-form" novalidate>
+          <div class="form-grid">
+            <div class="form-group" id="title-group">
+              <label for="grievance-title">Title <span class="required">*</span></label>
+              <input type="text" class="form-input" id="grievance-title" placeholder="e.g., Water Cooler Not Working" required>
+              <span class="form-error">Title is required</span>
+            </div>
+
+            <div class="form-group" id="category-group">
+              <label for="grievance-category">Category <span class="required">*</span></label>
+              <select class="form-select" id="grievance-category" required>
+                <option value="">Select a category</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="Academic">Academic</option>
+                <option value="Administrative">Administrative</option>
+                <option value="Financial">Financial</option>
+                <option value="Hostel">Hostel</option>
+                <option value="Library">Library</option>
+                <option value="Examination">Examination</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="form-error">Please select a category</span>
+            </div>
+
+            <div class="form-group" id="priority-group">
+              <label for="grievance-priority">Priority <span class="required">*</span></label>
+              <select class="form-select" id="grievance-priority" required>
+                <option value="">Select priority</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+              </select>
+              <span class="form-error">Please select a priority</span>
+            </div>
+
+            <div class="form-group" id="department-group">
+              <label for="grievance-department">Department</label>
+              <input type="text" class="form-input" id="grievance-department" placeholder="Your department">
+            </div>
+
+            <div class="form-group" id="email-group">
+              <label for="grievance-email">Email</label>
+              <input type="email" class="form-input" id="grievance-email" placeholder="email@example.com" readonly>
+              <span class="form-hint">Auto-filled from your account</span>
+            </div>
+
+            <div class="form-group full-width" id="description-group">
+              <label for="grievance-description">Description <span class="required">*</span></label>
+              <textarea class="form-textarea" id="grievance-description" placeholder="Provide a detailed description of your grievance, including dates, people involved, and any relevant information..." required></textarea>
+              <span class="form-error">Description is required (minimum 20 characters)</span>
+            </div>
+
+            <div class="form-group full-width form-actions">
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                Submit Grievance
+              </button>
+              <button type="reset" class="btn btn-secondary" id="reset-btn">
+                Reset Form
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/grievance.js"></script>
+  <script>
+    // Protect page
+    checkAuth('student');
+    loadUserInfo();
+
+    // Auto-fill email
+    const user = getCurrentUser();
+    if (user) {
+      document.getElementById('grievance-email').value = user.email || '';
+      document.getElementById('grievance-department').value = user.department || '';
+    }
+
+    // Handle form submission
+    document.getElementById('grievance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await submitGrievance();
+    });
+
+    // Success modal close
+    function closeSuccessModal() {
+      document.getElementById('success-overlay').classList.add('hidden');
+    }
+
+    // Sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    });
+    document.getElementById('sidebar-overlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', logout);
+  </script>
+</body>
+</html>

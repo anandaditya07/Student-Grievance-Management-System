@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View and track the status of your submitted grievances.">
+  <title>My Grievances — Grievance System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- View Details Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="detail-modal">
+      <div class="modal-header">
+        <h3>Grievance Details</h3>
+        <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">G</div>
+          <div class="logo-text">
+            <h1>Griever</h1>
+            <span>Management System</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="submit.html" class="nav-item" id="nav-submit">
+          <span class="nav-icon">📝</span>
+          <span>Submit Grievance</span>
+        </a>
+        <a href="grievances.html" class="nav-item active" id="nav-grievances">
+          <span class="nav-icon">📋</span>
+          <span>My Grievances</span>
+          <span class="nav-badge" id="grievance-count-badge">0</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="user-info">
+            <div class="user-name" id="user-display-name">User</div>
+            <div class="user-role" id="user-display-role">Student</div>
+          </div>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2>My Grievances</h2>
+        <p>Track the status of your submitted grievances</p>
+      </div>
+
+      <div class="solid-card">
+        <!-- Search & Filters -->
+        <div class="table-controls">
+          <div class="search-box">
+            <input type="text" id="search-grievances" placeholder="Search by title or ticket ID...">
+          </div>
+          <select class="filter-select" id="filter-status">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <select class="filter-select" id="filter-priority">
+            <option value="">All Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+          </select>
+        </div>
+
+        <!-- Grievances Table -->
+        <table class="data-table" id="grievances-table">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="grievances-tbody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+        <div class="empty-state hidden" id="no-grievances-msg">
+          <h4>No grievances found</h4>
+          <p>Try adjusting your search or filters</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/grievance.js"></script>
+  <script>
+    // Protect page
+    checkAuth('student');
+    loadUserInfo();
+
+    // Load grievances
+    loadMyGrievances();
+
+    // Search handler
+    document.getElementById('search-grievances').addEventListener('input', filterGrievances);
+    document.getElementById('filter-status').addEventListener('change', filterGrievances);
+    document.getElementById('filter-priority').addEventListener('change', filterGrievances);
+
+    // Modal close
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // Sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    });
+    document.getElementById('sidebar-overlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', logout);
+  </script>
+</body>
+</html>

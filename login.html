@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login to the Grievance Management System to submit and track grievances.">
+  <title>Login — Grievance System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="auth-bg"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Login Form -->
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">G</div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to your grievance management account</p>
+      </div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group" id="email-group">
+          <label for="login-email">Email Address <span class="required">*</span></label>
+          <input type="email" class="form-input" id="login-email" placeholder="Enter your email" required>
+          <span class="form-error" id="email-error">Please enter a valid email address</span>
+        </div>
+
+        <div class="form-group" id="password-group">
+          <label for="login-password">Password <span class="required">*</span></label>
+          <input type="password" class="form-input" id="login-password" placeholder="Enter your password" required>
+          <span class="form-error" id="password-error">Password is required</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn" style="margin-top: 0.5rem;">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create one here</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Redirect if already logged in
+    (function() {
+      const token = localStorage.getItem('gms_token');
+      const user = localStorage.getItem('gms_user');
+      if (token && user) {
+        try {
+          const userData = JSON.parse(user);
+          window.location.href = userData.role === 'admin' ? '/admin/dashboard.html' : '/student/dashboard.html';
+        } catch(e) {
+          localStorage.clear();
+        }
+      }
+    })();
+
+    // Handle login form
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      // Reset errors
+      document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+
+      // Validate
+      let hasError = false;
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('email-group').classList.add('error');
+        hasError = true;
+      }
+      if (!password) {
+        document.getElementById('password-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      try {
+        const res = await fetch(API_BASE_URL + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Login failed');
+        }
+
+        // Store token and user data
+        localStorage.setItem('gms_token', data.token);
+        localStorage.setItem('gms_user', JSON.stringify(data.user));
+
+        showToast('Login successful! Redirecting...', 'success');
+
+        setTimeout(() => {
+          if (data.user.role === 'admin') {
+            window.location.href = '/admin/dashboard.html';
+          } else {
+            window.location.href = '/student/dashboard.html';
+          }
+        }, 500);
+
+      } catch (err) {
+        showToast(err.message || 'Login failed. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

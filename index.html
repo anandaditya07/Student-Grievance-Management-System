@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Grievance Management System — Submit, track, and resolve grievances efficiently.">
+  <title>Grievance System — Welcome</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .redirect-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="redirect-container">
+    <div class="loading-spinner"></div>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">Redirecting...</p>
+  </div>
+
+  <script>
+    // Check if user is logged in and redirect accordingly
+    (function() {
+      const token = localStorage.getItem('gms_token');
+      const user = localStorage.getItem('gms_user');
+
+      if (token && user) {
+        try {
+          const userData = JSON.parse(user);
+          if (userData.role === 'admin') {
+            window.location.href = '/admin/dashboard.html';
+          } else {
+            window.location.href = '/student/dashboard.html';
+          }
+        } catch (e) {
+          localStorage.removeItem('gms_token');
+          localStorage.removeItem('gms_user');
+          window.location.href = '/login.html';
+        }
+      } else {
+        window.location.href = '/login.html';
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin Panel — Manage and respond to all submitted grievances.">
+  <title>Admin Panel — Grievance System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Manage Grievance Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="manage-modal" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>Manage Grievance</h3>
+        <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Grievance Details -->
+        <div class="detail-grid" id="manage-details">
+          <!-- Dynamically populated -->
+        </div>
+
+        <!-- Description -->
+        <div class="detail-item full-width" style="margin-bottom: 1.2rem;">
+          <span class="detail-label">Description</span>
+          <div class="detail-description" id="manage-description"></div>
+        </div>
+
+        <!-- Status Update -->
+        <div style="margin-bottom: 1.2rem;">
+          <span class="detail-label" style="margin-bottom: 0.5rem; display: block;">Update Status</span>
+          <div class="status-buttons" id="status-buttons">
+            <button class="status-btn" data-status="Pending" onclick="selectStatus('Pending')">Pending</button>
+            <button class="status-btn" data-status="In Progress" onclick="selectStatus('In Progress')">In Progress</button>
+            <button class="status-btn" data-status="Resolved" onclick="selectStatus('Resolved')">Resolved</button>
+            <button class="status-btn" data-status="Rejected" onclick="selectStatus('Rejected')">Rejected</button>
+          </div>
+        </div>
+
+        <!-- Admin Response -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="admin-response-text">Admin Response</label>
+          <textarea class="form-textarea" id="admin-response-text" placeholder="Add a response or note..." style="min-height: 100px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeManageModal()">Cancel</button>
+        <button class="btn btn-primary" id="save-response-btn" onclick="saveResponse()">Save Response</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">G</div>
+          <div class="logo-text">
+            <h1>Griever</h1>
+            <span>Admin Portal</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-label">Administration</div>
+        <a href="dashboard.html" class="nav-item" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="panel.html" class="nav-item active" id="nav-panel">
+          <span class="nav-icon">⚙️</span>
+          <span>Admin Panel</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="user-avatar">A</div>
+          <div class="user-info">
+            <div class="user-name" id="user-display-name">Admin</div>
+            <div class="user-role" id="user-display-role">Administrator</div>
+          </div>
+          <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Admin Panel</h2>
+        <p>Manage and respond to all submitted grievances</p>
+      </div>
+
+      <div class="solid-card">
+        <!-- Search & Filters -->
+        <div class="table-controls">
+          <div class="search-box">
+            <input type="text" id="admin-search" placeholder="Search by Ticket ID, Student Name, or Title...">
+          </div>
+          <select class="filter-select" id="admin-filter-status">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <select class="filter-select" id="admin-filter-priority">
+            <option value="">All Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+          </select>
+        </div>
+
+        <!-- Grievances Table -->
+        <table class="data-table" id="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Submitted By</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-tbody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+        <div class="empty-state hidden" id="no-admin-msg">
+          <h4>No grievances found</h4>
+          <p>Try adjusting your search or filters</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+  <script>
+    // Protect page
+    checkAuth('admin');
+    loadUserInfo();
+
+    // Load all grievances
+    loadAdminGrievances();
+
+    // Search & filter handlers
+    document.getElementById('admin-search').addEventListener('input', filterAdminGrievances);
+    document.getElementById('admin-filter-status').addEventListener('change', filterAdminGrievances);
+    document.getElementById('admin-filter-priority').addEventListener('change', filterAdminGrievances);
+
+    // Modal close
+    document.getElementById('modal-close').addEventListener('click', closeManageModal);
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeManageModal();
+    });
+
+    // Sidebar toggle
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    });
+    document.getElementById('sidebar-overlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', logout);
+  </script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Register for the Grievance Management System as a Student or Admin.">
+  <title>Register — Grievance System</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="auth-bg"></div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Register Form -->
+  <div class="auth-container">
+    <div class="auth-card wide">
+      <div class="auth-header">
+        <div class="auth-logo">G</div>
+        <h1>Create Account</h1>
+        <p>Join the Grievance Management System</p>
+      </div>
+
+      <!-- Role Toggle -->
+      <div class="role-tabs" id="role-tabs">
+        <button type="button" class="role-tab active" data-role="student">Student</button>
+        <button type="button" class="role-tab" data-role="admin">Admin</button>
+      </div>
+
+      <form id="register-form" novalidate>
+        <input type="hidden" id="register-role" value="student">
+
+        <div class="form-grid">
+          <div class="form-group" id="name-group">
+            <label for="register-name">Full Name <span class="required">*</span></label>
+            <input type="text" class="form-input" id="register-name" placeholder="Enter your full name" required>
+            <span class="form-error" id="name-error">Full name is required</span>
+          </div>
+
+          <!-- Student: Enrollment Number -->
+          <div class="form-group" id="enrollment-group">
+            <label for="register-enrollment">Enrollment Number <span class="required">*</span></label>
+            <input type="text" class="form-input" id="register-enrollment" placeholder="e.g., EN2024001">
+            <span class="form-error" id="enrollment-error">Enrollment number is required</span>
+          </div>
+
+          <!-- Admin: Admin ID (hidden by default) -->
+          <div class="form-group hidden" id="adminid-group">
+            <label for="register-adminid">Admin ID <span class="required">*</span></label>
+            <input type="text" class="form-input" id="register-adminid" placeholder="e.g., ADM001">
+            <span class="form-error" id="adminid-error">Admin ID is required</span>
+          </div>
+
+          <div class="form-group" id="email-group">
+            <label for="register-email">Email Address <span class="required">*</span></label>
+            <input type="email" class="form-input" id="register-email" placeholder="Enter your email" required>
+            <span class="form-error" id="email-error">Please enter a valid email address</span>
+          </div>
+
+          <div class="form-group" id="department-group">
+            <label for="register-department">Department <span class="required">*</span></label>
+            <input type="text" class="form-input" id="register-department" placeholder="e.g., Computer Science" required>
+            <span class="form-error" id="department-error">Department is required</span>
+          </div>
+
+          <div class="form-group" id="password-group">
+            <label for="register-password">Password <span class="required">*</span></label>
+            <input type="password" class="form-input" id="register-password" placeholder="Create a strong password" required>
+            <span class="form-error" id="password-error">Password must be at least 8 characters with uppercase, lowercase, and number</span>
+            <div class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-fill" id="strength-fill"></div>
+              </div>
+              <span class="strength-text" id="strength-text"></span>
+            </div>
+          </div>
+
+          <div class="form-group" id="confirm-group">
+            <label for="register-confirm">Confirm Password <span class="required">*</span></label>
+            <input type="password" class="form-input" id="register-confirm" placeholder="Confirm your password" required>
+            <span class="form-error" id="confirm-error">Passwords do not match</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="register-btn" style="margin-top: 1rem;">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign in here</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Role tab switching
+    document.querySelectorAll('.role-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        const role = tab.dataset.role;
+        document.getElementById('register-role').value = role;
+
+        if (role === 'admin') {
+          document.getElementById('enrollment-group').classList.add('hidden');
+          document.getElementById('adminid-group').classList.remove('hidden');
+        } else {
+          document.getElementById('enrollment-group').classList.remove('hidden');
+          document.getElementById('adminid-group').classList.add('hidden');
+        }
+      });
+    });
+
+    // Password strength checker
+    document.getElementById('register-password').addEventListener('input', (e) => {
+      const password = e.target.value;
+      const fill = document.getElementById('strength-fill');
+      const text = document.getElementById('strength-text');
+      
+      fill.className = 'strength-fill';
+      
+      if (password.length === 0) {
+        text.textContent = '';
+        fill.style.width = '0%';
+        return;
+      }
+
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+      if (strength <= 1) {
+        fill.classList.add('weak');
+        text.textContent = 'Weak';
+        text.style.color = 'var(--status-rejected)';
+      } else if (strength === 2) {
+        fill.classList.add('fair');
+        text.textContent = 'Fair';
+        text.style.color = 'var(--priority-high)';
+      } else if (strength === 3) {
+        fill.classList.add('good');
+        text.textContent = 'Good';
+        text.style.color = 'var(--status-pending)';
+      } else {
+        fill.classList.add('strong');
+        text.textContent = 'Strong';
+        text.style.color = 'var(--status-resolved)';
+      }
+    });
+
+    // Handle registration form
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const role = document.getElementById('register-role').value;
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim();
+      const department = document.getElementById('register-department').value.trim();
+      const password = document.getElementById('register-password').value;
+      const confirm = document.getElementById('register-confirm').value;
+      const enrollment = document.getElementById('register-enrollment').value.trim();
+      const adminId = document.getElementById('register-adminid').value.trim();
+
+      // Reset errors
+      document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+
+      // Validate
+      let hasError = false;
+
+      if (!name) {
+        document.getElementById('name-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById('email-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (!department) {
+        document.getElementById('department-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (role === 'student' && !enrollment) {
+        document.getElementById('enrollment-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (role === 'admin' && !adminId) {
+        document.getElementById('adminid-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (!password || password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+        document.getElementById('password-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (password !== confirm) {
+        document.getElementById('confirm-group').classList.add('error');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const btn = document.getElementById('register-btn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      try {
+        const body = {
+          name,
+          email,
+          password,
+          role,
+          department,
+          enrollment_number: role === 'student' ? enrollment : '',
+          admin_id: role === 'admin' ? adminId : ''
+        };
+
+        const res = await fetch(API_BASE_URL + '/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Registration failed');
+        }
+
+        showToast('Account created successfully! Redirecting to login...', 'success');
+        
+        setTimeout(() => {
+          window.location.href = '/login.html';
+        }, 1500);
+
+      } catch (err) {
+        showToast(err.message || 'Registration failed. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>
